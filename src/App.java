@@ -7,6 +7,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import java.text.SimpleDateFormat;
+
 class UserAuthentication {
     private String username;
     private String password;
@@ -26,7 +27,6 @@ class UserAuthentication {
 class FinancialManager {
     private ArrayList<Double> incomes;
     private ArrayList<Double> expenses;
-    
 
     // Constructor to initialize income and expense lists
     public FinancialManager() {
@@ -35,29 +35,35 @@ class FinancialManager {
     }
 
     // Method to record income
-    public void recordIncome(double amount) {
+    public String recordIncome(double amount) {
         incomes.add(amount);
-        System.out.println("Income recorded successfully: $" + amount);
+        String message = "Income recorded successfully: $" + amount;
+        System.out.println(message);
+        return message;
     }
 
     // Method to record expense
-    public void recordExpense(double amount) {
+    public String recordExpense(double amount) {
         expenses.add(amount);
-        System.out.println("Expense recorded successfully: $" + amount);
+        String message = "Expense recorded successfully: $" + amount;
+        System.out.println(message);
+        return message;
     }
 
     // Method to display income and expense summary
-    public void displaySummary() {
-        double totalIncome = incomes.stream().mapToDouble(Double::doubleValue).sum();
-        double totalExpense = expenses.stream().mapToDouble(Double::doubleValue).sum();
+    public String displaySummary() {
+    double totalIncome = incomes.stream().mapToDouble(Double::doubleValue).sum();
+    double totalExpense = expenses.stream().mapToDouble(Double::doubleValue).sum();
 
-        System.out.println("Total Income: $" + totalIncome);
-        System.out.println("Total Expense: $" + totalExpense);
-        System.out.println("Balance: $" + (totalIncome - totalExpense));
-    }
+    String summary = "Total Income: $" + totalIncome + "\n" +
+                     "Total Expense: $" + totalExpense + "\n" +
+                     "Balance: $" + (totalIncome - totalExpense);
+
+    System.out.println(summary); // Print to the console as well
+    return summary;
 }
-
-
+    
+}
 
 class Transaction {
     private Date date;
@@ -103,7 +109,6 @@ class TransactionHistoryManager {
     }
 }
 
-
 class BudgetManager {
     private Map<String, Double> budgets;
 
@@ -120,17 +125,22 @@ class BudgetManager {
 
     // Method to track spending against budgets
     public void trackSpending(String category, double spentAmount) {
-        if (budgets.containsKey(category)) {
-            double budgetAmount = budgets.get(category);
-            double remainingBudget = budgetAmount - spentAmount;
-            System.out.println("Remaining budget for " + category + ": $" + remainingBudget);
-        } else {
-            System.out.println("No budget set for " + category + ". Consider setting a budget.");
-        }
+    if (budgets.containsKey(category)) {
+        double budgetAmount = budgets.get(category);
+        double remainingBudget = budgetAmount - spentAmount;
+
+        // Update the budget value
+        budgets.put(category, remainingBudget);
+
+        System.out.println("Remaining budget for " + category + ": $" + remainingBudget);
+    } else {
+        System.out.println("No budget set for " + category + ". Consider setting a budget.");
     }
-    public double getBudget(String category) {
-    return budgets.getOrDefault(category, 0.0);
 }
+
+    public double getBudget(String category) {
+        return budgets.getOrDefault(category, 0.0);
+    }
 }
 
 class FinancialReportGenerator {
@@ -169,7 +179,8 @@ class FinancialReportGenerator {
         List<String> categories = Arrays.asList("CategoryA", "CategoryB", "CategoryC");
 
         for (String category : categories) {
-            // Replace the following line with your logic to calculate spending for each category
+            // Replace the following line with your logic to calculate spending for each
+            // category
             double categorySpending = calculateCategorySpending(category);
             report.append(category).append(": $").append(categorySpending).append("\n");
         }
@@ -187,14 +198,15 @@ class FinancialReportGenerator {
         List<String> categories = Arrays.asList("CategoryA", "CategoryB", "CategoryC");
 
         for (String category : categories) {
-            // Replace the following line with your logic to compare spending against budgets
+            // Replace the following line with your logic to compare spending against
+            // budgets
             double budget = getBudgetForCategory(category);
             double actualSpending = calculateCategorySpending(category);
             double remainingBudget = budget - actualSpending;
 
             report.append(category).append(": Budget: $").append(budget)
-                  .append(", Actual Spending: $").append(actualSpending)
-                  .append(", Remaining Budget: $").append(remainingBudget).append("\n");
+                    .append(", Actual Spending: $").append(actualSpending)
+                    .append(", Remaining Budget: $").append(remainingBudget).append("\n");
         }
 
         return report.toString();
@@ -202,8 +214,10 @@ class FinancialReportGenerator {
 
     // Placeholder method to calculate category spending
     private double calculateCategorySpending(String category) {
-        // Replace this with your actual logic to calculate spending for the given category
-        // For example, you might iterate over transactions and sum the amounts for the category.
+        // Replace this with your actual logic to calculate spending for the given
+        // category
+        // For example, you might iterate over transactions and sum the amounts for the
+        // category.
         return 0.0;
     }
 
@@ -214,7 +228,6 @@ class FinancialReportGenerator {
         return 0.0;
     }
 }
-
 
 class SavingsManager {
     private Map<String, Double> savings;
@@ -370,7 +383,9 @@ public class App extends Application {
     private TransactionHistoryManager transactionHistoryManager;
     private BudgetManager budgetManager;
     private FinancialReportGenerator reportGenerator;
-
+    private TextField usernameField;
+private PasswordField passwordField;
+private GridPane grid;
     public static void main(String[] args) {
         launch(args);
     }
@@ -382,33 +397,25 @@ public class App extends Application {
         transactionHistoryManager = new TransactionHistoryManager();
         budgetManager = new BudgetManager();
         reportGenerator = new FinancialReportGenerator();
+
         primaryStage.setTitle("User Authentication Test");
 
-        GridPane grid = new GridPane();
+        grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(25, 25, 25, 25));
+        
 
+        // Add only authentication controls initially
         addAuthenticationControls(grid, 0, 0);
-
-        // Add financial controls
-        addFinancialControls(grid, 0, 4);
-
-        // Add transaction history controls
-        addTransactionHistoryControls(grid, 2, 0);
-
-        // Add budget manager controls
-        addBudgetManagerControls(grid, 2, 4);
-
-        // Add report generator controls
-        addReportGeneratorControls(grid, 4, 0);
 
         Scene scene = new Scene(grid, 800, 600);
         primaryStage.setScene(scene);
 
         primaryStage.show();
     }
+
 
     private void addAuthenticationControls(GridPane grid, int col, int row) {
         Label authLabel = new Label("User Authentication");
@@ -417,13 +424,13 @@ public class App extends Application {
         Label usernameLabel = new Label("Username:");
         grid.add(usernameLabel, col, row + 1);
 
-        TextField usernameField = new TextField();
+        usernameField = new TextField();
         grid.add(usernameField, col + 1, row + 1);
 
         Label passwordLabel = new Label("Password:");
         grid.add(passwordLabel, col, row + 2);
 
-        PasswordField passwordField = new PasswordField();
+        passwordField = new PasswordField();
         grid.add(passwordField, col + 1, row + 2);
 
         Button authButton = new Button("Authenticate");
@@ -434,7 +441,16 @@ public class App extends Application {
             String enteredPassword = passwordField.getText();
 
             if (userAuth.authenticateUser(enteredUsername, enteredPassword)) {
+                // If authentication is successful, show the other controls
+                addFinancialControls(grid, 0, 4);
+                addTransactionHistoryControls(grid, 2, 0);
+                addBudgetManagerControls(grid, 2, 5);
+                addReportGeneratorControls(grid, 4, 0);
+
                 showAlert("Authentication Successful", "Access granted.");
+
+                // Remove authentication controls
+                grid.getChildren().removeAll(authLabel, usernameLabel, usernameField, passwordLabel, passwordField, authButton);
             } else {
                 showAlert("Authentication Failed", "Access denied.");
             }
@@ -459,21 +475,28 @@ public class App extends Application {
 
         Button recordButton = new Button("Record Transaction");
         grid.add(recordButton, col + 1, row + 3);
+        Button showSummaryButton = new Button("Show Summary");
+    grid.add(showSummaryButton, col + 1, row + 4);
 
         recordButton.setOnAction(e -> {
             try {
                 double incomeAmount = Double.parseDouble(incomeField.getText());
                 double expenseAmount = Double.parseDouble(expenseField.getText());
-
-                financialManager.recordIncome(incomeAmount);
-                financialManager.recordExpense(expenseAmount);
-
+        
+                String incomeMessage = financialManager.recordIncome(incomeAmount);
+                String expenseMessage = financialManager.recordExpense(expenseAmount);
+        
                 // Display summary
-                showAlert("Transaction Recorded", "Income: $" + incomeAmount + "\nExpense: $" + expenseAmount);
+                showAlert("Transaction Recorded", incomeMessage + "\n" + expenseMessage);
                 financialManager.displaySummary();
             } catch (NumberFormatException ex) {
                 showAlert("Invalid Input", "Please enter valid numeric values for income and expense.");
             }
+        });
+        showSummaryButton.setOnAction(e -> {
+            // Display financial summary
+            String summaryMessage = financialManager.displaySummary();
+            showAlert("Financial Summary", summaryMessage);
         });
     }
 
@@ -517,52 +540,56 @@ public class App extends Application {
             // Display transaction history in an alert
             showAlert("Transaction History", transactionHistoryManager.getTransactionHistory());
         });
+        
     }
 
     private void addBudgetManagerControls(GridPane grid, int col, int row) {
         Label budgetLabel = new Label("Budget Management");
         grid.add(budgetLabel, col, row, 2, 1);
-    
+
         Label categoryLabel = new Label("Category:");
         grid.add(categoryLabel, col, row + 1);
-    
+
         TextField categoryField = new TextField();
         grid.add(categoryField, col + 1, row + 1);
-    
+
         Label amountLabel = new Label("Amount:");
         grid.add(amountLabel, col, row + 2);
-    
+
         TextField amountField = new TextField();
         grid.add(amountField, col + 1, row + 2);
-    
+
         Button setBudgetButton = new Button("Set Budget");
         grid.add(setBudgetButton, col + 1, row + 3);
-    
+
         Button trackSpendingButton = new Button("Track Spending");
         grid.add(trackSpendingButton, col + 1, row + 4);
-    
+
         setBudgetButton.setOnAction(e -> {
             try {
                 String category = categoryField.getText();
                 double amount = Double.parseDouble(amountField.getText());
-    
+
                 budgetManager.setBudget(category, amount);
                 showAlert("Budget Set", "Budget set successfully for " + category + ": $" + amount);
             } catch (NumberFormatException ex) {
                 showAlert("Invalid Input", "Please enter a valid numeric value for amount.");
             }
         });
-    
+
         trackSpendingButton.setOnAction(e -> {
             try {
                 String category = categoryField.getText();
                 double spentAmount = Double.parseDouble(amountField.getText());
-    
+        
                 budgetManager.trackSpending(category, spentAmount);
-    
-                // Display the remaining budget in an alert
+        
+                // Get the updated remaining budget
                 double remainingBudget = budgetManager.getBudget(category);
+        
+                // Display the remaining budget in an alert
                 showAlert("Spending Tracked", "Remaining budget for " + category + ": $" + remainingBudget);
+        
             } catch (NumberFormatException ex) {
                 showAlert("Invalid Input", "Please enter a valid numeric value for spending amount.");
             }
@@ -599,16 +626,16 @@ public class App extends Application {
     }
 
     private void showAlert(String title, String message) {
-    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-    alert.setTitle(title);
-    alert.setHeaderText(null);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
 
-    if (message != null && !message.isEmpty()) {
-        alert.setContentText(message);
-    } else {
-        alert.setContentText("No message to display.");
+        if (message != null && !message.isEmpty()) {
+            alert.setContentText(message);
+        } else {
+            alert.setContentText("No message to display.");
+        }
+
+        alert.showAndWait();
     }
-
-    alert.showAndWait();
-}
 }
