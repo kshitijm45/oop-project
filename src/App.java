@@ -6,7 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-
+import java.text.SimpleDateFormat;
 class UserAuthentication {
     private String username;
     private String password;
@@ -26,6 +26,7 @@ class UserAuthentication {
 class FinancialManager {
     private ArrayList<Double> incomes;
     private ArrayList<Double> expenses;
+    
 
     // Constructor to initialize income and expense lists
     public FinancialManager() {
@@ -56,6 +57,8 @@ class FinancialManager {
     }
 }
 
+
+
 class Transaction {
     private Date date;
     private String description;
@@ -68,11 +71,10 @@ class Transaction {
         this.amount = amount;
     }
 
-    // Method to display transaction details
-    public void displayTransaction() {
-        System.out.println("Date: " + date);
-        System.out.println("Description: " + description);
-        System.out.println("Amount: $" + amount);
+    // Method to get a formatted string representation of the transaction
+    public String getFormattedTransaction() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return "Date: " + dateFormat.format(date) + "\nDescription: " + description + "\nAmount: $" + amount;
     }
 }
 
@@ -84,23 +86,23 @@ class TransactionHistoryManager {
         this.transactions = new ArrayList<>();
     }
 
-    // Method to record a transaction
-    public void recordTransaction(String description, double amount) {
+    // Method to record a transaction and return its formatted representation
+    public String recordTransaction(String description, double amount) {
         Transaction transaction = new Transaction(description, amount);
         transactions.add(transaction);
-        System.out.println("Transaction recorded successfully:");
-        transaction.displayTransaction();
+        return transaction.getFormattedTransaction();
     }
 
-    // Method to display transaction history
-    public void displayTransactionHistory() {
-        System.out.println("Transaction History:");
+    // Method to get a formatted string representation of the transaction history
+    public String getTransactionHistory() {
+        StringBuilder history = new StringBuilder("Transaction History:\n");
         for (Transaction transaction : transactions) {
-            transaction.displayTransaction();
-            System.out.println("------------------------");
+            history.append(transaction.getFormattedTransaction()).append("\n------------------------\n");
         }
+        return history.toString();
     }
 }
+
 
 class BudgetManager {
     private Map<String, Double> budgets;
@@ -126,6 +128,9 @@ class BudgetManager {
             System.out.println("No budget set for " + category + ". Consider setting a budget.");
         }
     }
+    public double getBudget(String category) {
+    return budgets.getOrDefault(category, 0.0);
+}
 }
 
 class FinancialReportGenerator {
@@ -139,30 +144,77 @@ class FinancialReportGenerator {
     }
 
     // Method to generate an income vs. expense summary
-    public void generateIncomeExpenseSummary() {
+    public String generateIncomeExpenseSummary() {
         double totalIncome = incomes.stream().mapToDouble(Double::doubleValue).sum();
         double totalExpense = expenses.stream().mapToDouble(Double::doubleValue).sum();
 
-        System.out.println("Income vs. Expense Summary:");
-        System.out.println("Total Income: $" + totalIncome);
-        System.out.println("Total Expense: $" + totalExpense);
-        System.out.println("Net Income: $" + (totalIncome - totalExpense));
+        // Construct the summary as a String
+        StringBuilder summary = new StringBuilder();
+        summary.append("Income vs. Expense Summary:\n");
+        summary.append("Total Income: $").append(totalIncome).append("\n");
+        summary.append("Total Expense: $").append(totalExpense).append("\n");
+        summary.append("Net Income: $").append(totalIncome - totalExpense);
+
+        // Return the summary as a String
+        return summary.toString();
     }
 
     // Method to generate category-wise spending report
-    public void generateCategorySpendingReport() {
-        // Implement logic to categorize expenses and display the report
-        System.out.println("Category-wise Spending Report:");
-        // ... (implementation for category-wise spending report)
+    public String generateCategorySpendingReport() {
+        // Placeholder logic
+        StringBuilder report = new StringBuilder();
+        report.append("Category-wise Spending Report:\n");
+
+        // Assume you have a list of categories
+        List<String> categories = Arrays.asList("CategoryA", "CategoryB", "CategoryC");
+
+        for (String category : categories) {
+            // Replace the following line with your logic to calculate spending for each category
+            double categorySpending = calculateCategorySpending(category);
+            report.append(category).append(": $").append(categorySpending).append("\n");
+        }
+
+        return report.toString();
     }
 
     // Method to generate budget comparison report
-    public void generateBudgetComparisonReport() {
-        // Implement logic to compare spending against budgets and display the report
-        System.out.println("Budget Comparison Report:");
-        // ... (implementation for budget comparison report)
+    public String generateBudgetComparisonReport() {
+        // Placeholder logic
+        StringBuilder report = new StringBuilder();
+        report.append("Budget Comparison Report:\n");
+
+        // Assume you have a list of categories
+        List<String> categories = Arrays.asList("CategoryA", "CategoryB", "CategoryC");
+
+        for (String category : categories) {
+            // Replace the following line with your logic to compare spending against budgets
+            double budget = getBudgetForCategory(category);
+            double actualSpending = calculateCategorySpending(category);
+            double remainingBudget = budget - actualSpending;
+
+            report.append(category).append(": Budget: $").append(budget)
+                  .append(", Actual Spending: $").append(actualSpending)
+                  .append(", Remaining Budget: $").append(remainingBudget).append("\n");
+        }
+
+        return report.toString();
+    }
+
+    // Placeholder method to calculate category spending
+    private double calculateCategorySpending(String category) {
+        // Replace this with your actual logic to calculate spending for the given category
+        // For example, you might iterate over transactions and sum the amounts for the category.
+        return 0.0;
+    }
+
+    // Placeholder method to get budget for a category
+    private double getBudgetForCategory(String category) {
+        // Replace this with your actual logic to get the budget for the given category
+        // You might use the BudgetManager to get the budget for the category.
+        return 0.0;
     }
 }
+
 
 class SavingsManager {
     private Map<String, Double> savings;
@@ -315,6 +367,9 @@ class CurrencyConverter {
 public class App extends Application {
     private UserAuthentication userAuth;
     private FinancialManager financialManager;
+    private TransactionHistoryManager transactionHistoryManager;
+    private BudgetManager budgetManager;
+    private FinancialReportGenerator reportGenerator;
 
     public static void main(String[] args) {
         launch(args);
@@ -322,10 +377,12 @@ public class App extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        userAuth = new UserAuthentication("johnDoe", "pass123");
+        userAuth = new UserAuthentication("Kshitij", "pass123");
         financialManager = new FinancialManager();
-
-        primaryStage.setTitle("Personal Money Manager");
+        transactionHistoryManager = new TransactionHistoryManager();
+        budgetManager = new BudgetManager();
+        reportGenerator = new FinancialReportGenerator();
+        primaryStage.setTitle("User Authentication Test");
 
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
@@ -333,36 +390,44 @@ public class App extends Application {
         grid.setVgap(10);
         grid.setPadding(new Insets(25, 25, 25, 25));
 
-        // User Authentication
-        addAuthenticationControls(grid);
+        addAuthenticationControls(grid, 0, 0);
 
-        // Financial Management
-        addFinancialManagementControls(grid);
+        // Add financial controls
+        addFinancialControls(grid, 0, 4);
 
-        Scene scene = new Scene(grid, 400, 300);
+        // Add transaction history controls
+        addTransactionHistoryControls(grid, 2, 0);
+
+        // Add budget manager controls
+        addBudgetManagerControls(grid, 2, 4);
+
+        // Add report generator controls
+        addReportGeneratorControls(grid, 4, 0);
+
+        Scene scene = new Scene(grid, 800, 600);
         primaryStage.setScene(scene);
 
         primaryStage.show();
     }
 
-    private void addAuthenticationControls(GridPane grid) {
+    private void addAuthenticationControls(GridPane grid, int col, int row) {
         Label authLabel = new Label("User Authentication");
-        grid.add(authLabel, 0, 0, 2, 1);
+        grid.add(authLabel, col, row, 2, 1);
 
         Label usernameLabel = new Label("Username:");
-        grid.add(usernameLabel, 0, 1);
+        grid.add(usernameLabel, col, row + 1);
 
         TextField usernameField = new TextField();
-        grid.add(usernameField, 1, 1);
+        grid.add(usernameField, col + 1, row + 1);
 
         Label passwordLabel = new Label("Password:");
-        grid.add(passwordLabel, 0, 2);
+        grid.add(passwordLabel, col, row + 2);
 
         PasswordField passwordField = new PasswordField();
-        grid.add(passwordField, 1, 2);
+        grid.add(passwordField, col + 1, row + 2);
 
         Button authButton = new Button("Authenticate");
-        grid.add(authButton, 1, 3);
+        grid.add(authButton, col + 1, row + 3);
 
         authButton.setOnAction(e -> {
             String enteredUsername = usernameField.getText();
@@ -376,24 +441,24 @@ public class App extends Application {
         });
     }
 
-    private void addFinancialManagementControls(GridPane grid) {
+    private void addFinancialControls(GridPane grid, int col, int row) {
         Label financialLabel = new Label("Financial Management");
-        grid.add(financialLabel, 0, 5, 2, 1);
+        grid.add(financialLabel, col, row, 2, 1);
 
         Label incomeLabel = new Label("Income:");
-        grid.add(incomeLabel, 0, 6);
+        grid.add(incomeLabel, col, row + 1);
 
         TextField incomeField = new TextField();
-        grid.add(incomeField, 1, 6);
+        grid.add(incomeField, col + 1, row + 1);
 
         Label expenseLabel = new Label("Expense:");
-        grid.add(expenseLabel, 0, 7);
+        grid.add(expenseLabel, col, row + 2);
 
         TextField expenseField = new TextField();
-        grid.add(expenseField, 1, 7);
+        grid.add(expenseField, col + 1, row + 2);
 
         Button recordButton = new Button("Record Transaction");
-        grid.add(recordButton, 1, 8);
+        grid.add(recordButton, col + 1, row + 3);
 
         recordButton.setOnAction(e -> {
             try {
@@ -402,19 +467,148 @@ public class App extends Application {
 
                 financialManager.recordIncome(incomeAmount);
                 financialManager.recordExpense(expenseAmount);
+
+                // Display summary
                 showAlert("Transaction Recorded", "Income: $" + incomeAmount + "\nExpense: $" + expenseAmount);
+                financialManager.displaySummary();
             } catch (NumberFormatException ex) {
                 showAlert("Invalid Input", "Please enter valid numeric values for income and expense.");
             }
         });
     }
 
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    private void addTransactionHistoryControls(GridPane grid, int col, int row) {
+        Label historyLabel = new Label("Transaction History");
+        grid.add(historyLabel, col, row, 2, 1);
+
+        Label descriptionLabel = new Label("Description:");
+        grid.add(descriptionLabel, col, row + 1);
+
+        TextField descriptionField = new TextField();
+        grid.add(descriptionField, col + 1, row + 1);
+
+        Label amountLabel = new Label("Amount:");
+        grid.add(amountLabel, col, row + 2);
+
+        TextField amountField = new TextField();
+        grid.add(amountField, col + 1, row + 2);
+        Button recordTransactionButton = new Button("Record Transaction");
+        grid.add(recordTransactionButton, col + 1, row + 3);
+
+        Button displayHistoryButton = new Button("Display Transaction History");
+        grid.add(displayHistoryButton, col + 1, row + 4);
+
+        recordTransactionButton.setOnAction(e -> {
+            try {
+                String description = descriptionField.getText();
+                double amount = Double.parseDouble(amountField.getText());
+
+                transactionHistoryManager.recordTransaction(description, amount);
+
+                // Display recorded transaction in an alert
+                showAlert("Transaction Recorded", "Description: " + description + "\nAmount: $" + amount);
+
+            } catch (NumberFormatException ex) {
+                showAlert("Invalid Input", "Please enter a valid numeric value for amount.");
+            }
+        });
+
+        displayHistoryButton.setOnAction(e -> {
+            // Display transaction history in an alert
+            showAlert("Transaction History", transactionHistoryManager.getTransactionHistory());
+        });
     }
+
+    private void addBudgetManagerControls(GridPane grid, int col, int row) {
+        Label budgetLabel = new Label("Budget Management");
+        grid.add(budgetLabel, col, row, 2, 1);
     
+        Label categoryLabel = new Label("Category:");
+        grid.add(categoryLabel, col, row + 1);
+    
+        TextField categoryField = new TextField();
+        grid.add(categoryField, col + 1, row + 1);
+    
+        Label amountLabel = new Label("Amount:");
+        grid.add(amountLabel, col, row + 2);
+    
+        TextField amountField = new TextField();
+        grid.add(amountField, col + 1, row + 2);
+    
+        Button setBudgetButton = new Button("Set Budget");
+        grid.add(setBudgetButton, col + 1, row + 3);
+    
+        Button trackSpendingButton = new Button("Track Spending");
+        grid.add(trackSpendingButton, col + 1, row + 4);
+    
+        setBudgetButton.setOnAction(e -> {
+            try {
+                String category = categoryField.getText();
+                double amount = Double.parseDouble(amountField.getText());
+    
+                budgetManager.setBudget(category, amount);
+                showAlert("Budget Set", "Budget set successfully for " + category + ": $" + amount);
+            } catch (NumberFormatException ex) {
+                showAlert("Invalid Input", "Please enter a valid numeric value for amount.");
+            }
+        });
+    
+        trackSpendingButton.setOnAction(e -> {
+            try {
+                String category = categoryField.getText();
+                double spentAmount = Double.parseDouble(amountField.getText());
+    
+                budgetManager.trackSpending(category, spentAmount);
+    
+                // Display the remaining budget in an alert
+                double remainingBudget = budgetManager.getBudget(category);
+                showAlert("Spending Tracked", "Remaining budget for " + category + ": $" + remainingBudget);
+            } catch (NumberFormatException ex) {
+                showAlert("Invalid Input", "Please enter a valid numeric value for spending amount.");
+            }
+        });
+    }
+
+    private void addReportGeneratorControls(GridPane grid, int col, int row) {
+        Label reportLabel = new Label("Financial Report Generator");
+        grid.add(reportLabel, col, row, 2, 1);
+
+        Button incomeExpenseSummaryButton = new Button("Generate Income vs. Expense Summary");
+        grid.add(incomeExpenseSummaryButton, col, row + 1);
+
+        Button categorySpendingReportButton = new Button("Generate Category-wise Spending Report");
+        grid.add(categorySpendingReportButton, col, row + 2);
+
+        Button budgetComparisonReportButton = new Button("Generate Budget Comparison Report");
+        grid.add(budgetComparisonReportButton, col, row + 3);
+
+        incomeExpenseSummaryButton.setOnAction(e -> {
+            // Generate and display income vs. expense summary
+            showAlert("Income vs. Expense Summary", reportGenerator.generateIncomeExpenseSummary());
+        });
+
+        categorySpendingReportButton.setOnAction(e -> {
+            // Generate and display category-wise spending report
+            showAlert("Category-wise Spending Report", reportGenerator.generateCategorySpendingReport());
+        });
+
+        budgetComparisonReportButton.setOnAction(e -> {
+            // Generate and display budget comparison report
+            showAlert("Budget Comparison Report", reportGenerator.generateBudgetComparisonReport());
+        });
+    }
+
+    private void showAlert(String title, String message) {
+    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    alert.setTitle(title);
+    alert.setHeaderText(null);
+
+    if (message != null && !message.isEmpty()) {
+        alert.setContentText(message);
+    } else {
+        alert.setContentText("No message to display.");
+    }
+
+    alert.showAndWait();
+}
 }
