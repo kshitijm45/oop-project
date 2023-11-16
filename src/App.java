@@ -4,9 +4,15 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import java.text.SimpleDateFormat;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.paint.Color;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 class UserAuthentication {
     private String username;
@@ -143,91 +149,6 @@ class BudgetManager {
     }
 }
 
-class FinancialReportGenerator {
-    private ArrayList<Double> incomes;
-    private ArrayList<Double> expenses;
-
-    // Constructor to initialize income and expense lists
-    public FinancialReportGenerator() {
-        this.incomes = new ArrayList<>();
-        this.expenses = new ArrayList<>();
-    }
-
-    // Method to generate an income vs. expense summary
-    public String generateIncomeExpenseSummary() {
-        double totalIncome = incomes.stream().mapToDouble(Double::doubleValue).sum();
-        double totalExpense = expenses.stream().mapToDouble(Double::doubleValue).sum();
-
-        // Construct the summary as a String
-        StringBuilder summary = new StringBuilder();
-        summary.append("Income vs. Expense Summary:\n");
-        summary.append("Total Income: $").append(totalIncome).append("\n");
-        summary.append("Total Expense: $").append(totalExpense).append("\n");
-        summary.append("Net Income: $").append(totalIncome - totalExpense);
-
-        // Return the summary as a String
-        return summary.toString();
-    }
-
-    // Method to generate category-wise spending report
-    public String generateCategorySpendingReport() {
-        // Placeholder logic
-        StringBuilder report = new StringBuilder();
-        report.append("Category-wise Spending Report:\n");
-
-        // Assume you have a list of categories
-        List<String> categories = Arrays.asList("CategoryA", "CategoryB", "CategoryC");
-
-        for (String category : categories) {
-            // Replace the following line with your logic to calculate spending for each
-            // category
-            double categorySpending = calculateCategorySpending(category);
-            report.append(category).append(": $").append(categorySpending).append("\n");
-        }
-
-        return report.toString();
-    }
-
-    // Method to generate budget comparison report
-    public String generateBudgetComparisonReport() {
-        // Placeholder logic
-        StringBuilder report = new StringBuilder();
-        report.append("Budget Comparison Report:\n");
-
-        // Assume you have a list of categories
-        List<String> categories = Arrays.asList("CategoryA", "CategoryB", "CategoryC");
-
-        for (String category : categories) {
-            // Replace the following line with your logic to compare spending against
-            // budgets
-            double budget = getBudgetForCategory(category);
-            double actualSpending = calculateCategorySpending(category);
-            double remainingBudget = budget - actualSpending;
-
-            report.append(category).append(": Budget: $").append(budget)
-                    .append(", Actual Spending: $").append(actualSpending)
-                    .append(", Remaining Budget: $").append(remainingBudget).append("\n");
-        }
-
-        return report.toString();
-    }
-
-    // Placeholder method to calculate category spending
-    private double calculateCategorySpending(String category) {
-        // Replace this with your actual logic to calculate spending for the given
-        // category
-        // For example, you might iterate over transactions and sum the amounts for the
-        // category.
-        return 0.0;
-    }
-
-    // Placeholder method to get budget for a category
-    private double getBudgetForCategory(String category) {
-        // Replace this with your actual logic to get the budget for the given category
-        // You might use the BudgetManager to get the budget for the category.
-        return 0.0;
-    }
-}
 
 class SavingsManager {
     private Map<String, Double> savings;
@@ -245,12 +166,14 @@ class SavingsManager {
     }
 
     // Method to display savings and investment details
-    public void displaySavings() {
-        System.out.println("Savings and Investments:");
-        for (Map.Entry<String, Double> entry : savings.entrySet()) {
-            System.out.println(entry.getKey() + " - Amount: $" + entry.getValue());
-        }
+    public String displaySavings() {
+    StringBuilder savingsDetails = new StringBuilder("Savings and Investments:\n");
+    for (Map.Entry<String, Double> entry : savings.entrySet()) {
+        savingsDetails.append(entry.getKey()).append(" - Amount: $").append(entry.getValue()).append("\n");
     }
+    return savingsDetails.toString();
+}
+    
 }
 
 class Goal {
@@ -274,6 +197,14 @@ class Goal {
     // Method to check if the goal is achieved
     public boolean isGoalAchieved() {
         return currentAmount >= targetAmount;
+    }
+    public double getCurrentAmount() {
+        return currentAmount;
+    }
+
+    // Method to get the remaining amount to reach the goal
+    public double getTargetAmount() {
+        return Math.max(0, targetAmount - currentAmount);
     }
 
     // Method to display goal details
@@ -300,17 +231,24 @@ class GoalManager {
     }
 
     // Method to record progress towards a goal
-    public void recordProgress(String goalName, double amount) {
-        if (goals.containsKey(goalName)) {
-            Goal goal = goals.get(goalName);
-            goal.recordProgress(amount);
-            if (goal.isGoalAchieved()) {
-                System.out.println("Congratulations! You've achieved your financial goal: " + goalName);
-            }
-        } else {
-            System.out.println("No goal set with the name: " + goalName);
+    public double recordProgress(String goalName, double amount) {
+    if (goals.containsKey(goalName)) {
+        Goal goal = goals.get(goalName);
+        goal.recordProgress(amount);
+
+        // Check if the goal is achieved after recording progress
+        if (goal.isGoalAchieved()) {
+            System.out.println("Congratulations! You've achieved your financial goal: " + goalName);
+            return 0;  // Goal achieved, return 0 for remaining amount
         }
+
+        double remainingAmount = goal.getTargetAmount();  // Corrected calculation
+        return remainingAmount;
+    } else {
+        System.out.println("No goal set with the name: " + goalName);
+        return -1; // Return a negative value to indicate no goal set
     }
+}
 }
 
 class ExpenseAnalytics {
@@ -334,46 +272,19 @@ class ExpenseAnalytics {
         } else {
             categoryExpenses.put(category, amount);
         }
-
-        System.out.println("Expense recorded successfully: $" + amount + " in category " + category);
     }
 
     // Method to view detailed analytics on spending habits
-    public void viewExpenseAnalytics() {
-        System.out.println("Expense Analytics:");
-        System.out.println("Total Expenses: $" + expenses.stream().mapToDouble(Double::doubleValue).sum());
+    public String viewExpenseAnalytics() {
+        StringBuilder analyticsMessage = new StringBuilder("Expense Analytics:\n");
+        analyticsMessage.append("Total Expenses: $").append(expenses.stream().mapToDouble(Double::doubleValue).sum()).append("\n");
 
-        System.out.println("Category-wise Expenses:");
+        analyticsMessage.append("Category-wise Expenses:\n");
         for (Map.Entry<String, Double> entry : categoryExpenses.entrySet()) {
-            System.out.println(entry.getKey() + ": $" + entry.getValue());
+            analyticsMessage.append(entry.getKey()).append(": $").append(entry.getValue()).append("\n");
         }
-    }
-}
 
-class CurrencyConverter {
-    private Map<String, Double> exchangeRates;
-
-    // Constructor to initialize the exchange rates
-    public CurrencyConverter() {
-        this.exchangeRates = new HashMap<>();
-    }
-
-    // Method to set exchange rates
-    public void setExchangeRate(String currencyCode, double rate) {
-        exchangeRates.put(currencyCode, rate);
-        System.out.println("Exchange rate set successfully for " + currencyCode + ": " + rate);
-    }
-
-    // Method to convert an amount from one currency to another
-    public double convertCurrency(double amount, String fromCurrency, String toCurrency) {
-        if (exchangeRates.containsKey(fromCurrency) && exchangeRates.containsKey(toCurrency)) {
-            double fromRate = exchangeRates.get(fromCurrency);
-            double toRate = exchangeRates.get(toCurrency);
-            return amount * (toRate / fromRate);
-        } else {
-            System.out.println("Invalid currency codes. Please check the exchange rates.");
-            return -1.0; // indicating an error
-        }
+        return analyticsMessage.toString();
     }
 }
 
@@ -382,40 +293,42 @@ public class App extends Application {
     private FinancialManager financialManager;
     private TransactionHistoryManager transactionHistoryManager;
     private BudgetManager budgetManager;
-    private FinancialReportGenerator reportGenerator;
     private TextField usernameField;
-private PasswordField passwordField;
-private GridPane grid;
+    private PasswordField passwordField;
+    private GridPane grid;
+    private SavingsManager savingsManager;
+    private String savingsDetails;
+    private GoalManager goalManager;
+    private ExpenseAnalytics expenseAnalytics;
     public static void main(String[] args) {
         launch(args);
     }
-
     @Override
     public void start(Stage primaryStage) {
         userAuth = new UserAuthentication("Kshitij", "pass123");
         financialManager = new FinancialManager();
         transactionHistoryManager = new TransactionHistoryManager();
         budgetManager = new BudgetManager();
-        reportGenerator = new FinancialReportGenerator();
-
-        primaryStage.setTitle("User Authentication Test");
-
+        savingsManager = new SavingsManager();
+        goalManager = new GoalManager();
+        expenseAnalytics = new ExpenseAnalytics();
+        primaryStage.setTitle("Personal Money Manager");
+    
         grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(25, 25, 25, 25));
-        
-
+    
         // Add only authentication controls initially
         addAuthenticationControls(grid, 0, 0);
-
-        Scene scene = new Scene(grid, 800, 600);
+    
+        Scene scene = new Scene(grid, 1000, 800);  // Adjust the size as needed
+        scene.getStylesheets().add("styles.css");
         primaryStage.setScene(scene);
-
+    
         primaryStage.show();
     }
-
 
     private void addAuthenticationControls(GridPane grid, int col, int row) {
         Label authLabel = new Label("User Authentication");
@@ -436,16 +349,21 @@ private GridPane grid;
         Button authButton = new Button("Authenticate");
         grid.add(authButton, col + 1, row + 3);
 
+        authLabel.getStyleClass().add("title-label");
+        authButton.getStyleClass().add("auth-button");
+
         authButton.setOnAction(e -> {
             String enteredUsername = usernameField.getText();
             String enteredPassword = passwordField.getText();
 
             if (userAuth.authenticateUser(enteredUsername, enteredPassword)) {
                 // If authentication is successful, show the other controls
-                addFinancialControls(grid, 0, 4);
+                addFinancialControls(grid, 0, 7);
                 addTransactionHistoryControls(grid, 2, 0);
-                addBudgetManagerControls(grid, 2, 5);
-                addReportGeneratorControls(grid, 4, 0);
+                addBudgetManagerControls(grid, 2, 7);
+                addSavingsManagerControls(grid, 4, 0);
+                addGoalManagerControls(grid, 4, 7);
+                addExpenseAnalyticsControls(grid, 0, 0);
 
                 showAlert("Authentication Successful", "Access granted.");
 
@@ -477,6 +395,11 @@ private GridPane grid;
         grid.add(recordButton, col + 1, row + 3);
         Button showSummaryButton = new Button("Show Summary");
     grid.add(showSummaryButton, col + 1, row + 4);
+
+    financialLabel.getStyleClass().add("title-label");
+        recordButton.getStyleClass().add("record-button");
+        showSummaryButton.getStyleClass().add("summary-button");
+
 
         recordButton.setOnAction(e -> {
             try {
@@ -520,6 +443,10 @@ private GridPane grid;
 
         Button displayHistoryButton = new Button("Display Transaction History");
         grid.add(displayHistoryButton, col + 1, row + 4);
+
+        historyLabel.getStyleClass().add("title-label");
+        recordTransactionButton.getStyleClass().add("record-button");
+        displayHistoryButton.getStyleClass().add("history-button");
 
         recordTransactionButton.setOnAction(e -> {
             try {
@@ -565,6 +492,12 @@ private GridPane grid;
         Button trackSpendingButton = new Button("Track Spending");
         grid.add(trackSpendingButton, col + 1, row + 4);
 
+        budgetLabel.getStyleClass().add("title-label");
+    categoryLabel.getStyleClass().add("input-label");
+    amountLabel.getStyleClass().add("input-label");
+    setBudgetButton.getStyleClass().add("record-button");
+    trackSpendingButton.getStyleClass().add("track-button");
+
         setBudgetButton.setOnAction(e -> {
             try {
                 String category = categoryField.getText();
@@ -596,34 +529,175 @@ private GridPane grid;
         });
     }
 
-    private void addReportGeneratorControls(GridPane grid, int col, int row) {
-        Label reportLabel = new Label("Financial Report Generator");
-        grid.add(reportLabel, col, row, 2, 1);
+    private void addSavingsManagerControls(GridPane grid, int col, int row) {
+        Label savingsLabel = new Label("Savings and Investments");
+        grid.add(savingsLabel, col, row, 2, 1);
+    
+        Label accountNameLabel = new Label("Account Name:");
+        grid.add(accountNameLabel, col, row + 1);
+    
+        TextField accountNameField = new TextField();
+        grid.add(accountNameField, col + 1, row + 1);
+    
+        Label amountLabel = new Label("Amount:");
+        grid.add(amountLabel, col, row + 2);
+    
+        TextField amountField = new TextField();
+        grid.add(amountField, col + 1, row + 2);
+    
+        Label interestRateLabel = new Label("Interest Rate:");
+        grid.add(interestRateLabel, col, row + 3);
+    
+        TextField interestRateField = new TextField();
+        grid.add(interestRateField, col + 1, row + 3);
+    
+        Label maturityDateLabel = new Label("Maturity Date:");
+        grid.add(maturityDateLabel, col, row + 4);
+    
+        TextField maturityDateField = new TextField();
+        grid.add(maturityDateField, col + 1, row + 4);
+    
+        Button recordSavingsButton = new Button("Record Savings");
+        grid.add(recordSavingsButton, col + 1, row + 5);
+    
+        Button displaySavingsButton = new Button("Display Savings");
+        grid.add(displaySavingsButton, col + 1, row + 6);
 
-        Button incomeExpenseSummaryButton = new Button("Generate Income vs. Expense Summary");
-        grid.add(incomeExpenseSummaryButton, col, row + 1);
-
-        Button categorySpendingReportButton = new Button("Generate Category-wise Spending Report");
-        grid.add(categorySpendingReportButton, col, row + 2);
-
-        Button budgetComparisonReportButton = new Button("Generate Budget Comparison Report");
-        grid.add(budgetComparisonReportButton, col, row + 3);
-
-        incomeExpenseSummaryButton.setOnAction(e -> {
-            // Generate and display income vs. expense summary
-            showAlert("Income vs. Expense Summary", reportGenerator.generateIncomeExpenseSummary());
+        savingsLabel.getStyleClass().add("title-label");
+        accountNameLabel.getStyleClass().add("input-label");
+        amountLabel.getStyleClass().add("input-label");
+        interestRateLabel.getStyleClass().add("input-label");
+        maturityDateLabel.getStyleClass().add("input-label");
+        recordSavingsButton.getStyleClass().add("record-button");
+        displaySavingsButton.getStyleClass().add("view-button");
+    
+        recordSavingsButton.setOnAction(e -> {
+            try {
+                String accountName = accountNameField.getText();
+                double amount = Double.parseDouble(amountField.getText());
+                double interestRate = Double.parseDouble(interestRateField.getText());
+                String maturityDate = maturityDateField.getText();
+    
+                savingsManager.recordSavings(accountName, amount, interestRate, maturityDate);
+                showAlert("Savings Recorded", "Savings recorded successfully for " + accountName);
+    
+            } catch (NumberFormatException ex) {
+                showAlert("Invalid Input", "Please enter valid numeric values.");
+            }
         });
-
-        categorySpendingReportButton.setOnAction(e -> {
-            // Generate and display category-wise spending report
-            showAlert("Category-wise Spending Report", reportGenerator.generateCategorySpendingReport());
-        });
-
-        budgetComparisonReportButton.setOnAction(e -> {
-            // Generate and display budget comparison report
-            showAlert("Budget Comparison Report", reportGenerator.generateBudgetComparisonReport());
+    
+        displaySavingsButton.setOnAction(e -> {
+            // Display savings and investments in an alert
+            savingsDetails = savingsManager.displaySavings();
+            showAlert("Savings Details", savingsDetails);
         });
     }
+
+    private void addGoalManagerControls(GridPane grid, int col, int row) {
+        Label goalLabel = new Label("Financial Goals");
+        grid.add(goalLabel, col, row, 2, 1);
+    
+        Label goalNameLabel = new Label("Goal Name:");
+        grid.add(goalNameLabel, col, row + 1);
+    
+        TextField goalNameField = new TextField();
+        grid.add(goalNameField, col + 1, row + 1);
+    
+        Label goalAmountLabel = new Label("Goal Amount:");
+        grid.add(goalAmountLabel, col, row + 2);
+    
+        TextField goalAmountField = new TextField();
+        grid.add(goalAmountField, col + 1, row + 2);
+    
+        Button setGoalButton = new Button("Set Financial Goal");
+        grid.add(setGoalButton, col + 1, row + 3);
+    
+        Button recordProgressButton = new Button("Record Progress");
+        grid.add(recordProgressButton, col + 1, row + 4);
+
+        setGoalButton.setOnAction(e -> {
+            try {
+                String goalName = goalNameField.getText();
+                double goalAmount = Double.parseDouble(goalAmountField.getText());
+    
+                goalManager.setGoal(goalName, "Description", goalAmount);
+                showAlert("Goal Set", "Financial goal set successfully: " + goalName);
+            } catch (NumberFormatException ex) {
+                showAlert("Invalid Input", "Please enter a valid numeric value for goal amount.");
+            }
+        });
+        goalLabel.getStyleClass().add("title-label");
+    goalNameLabel.getStyleClass().add("input-label");
+    goalAmountLabel.getStyleClass().add("input-label");
+    setGoalButton.getStyleClass().add("record-button");
+    recordProgressButton.getStyleClass().add("record-button");
+    
+        recordProgressButton.setOnAction(e -> {
+            try {
+                String goalName = goalNameField.getText();
+                double progressAmount = Double.parseDouble(goalAmountField.getText());
+        
+                double remainingAmount = goalManager.recordProgress(goalName, progressAmount);
+                if (remainingAmount >= 0) {
+                    if (remainingAmount == 0) {
+                        showAlert("Goal Achieved", "Congratulations! You've achieved your financial goal: " + goalName);
+                    } else {
+                        showAlert("Progress Recorded", "Progress recorded towards " + goalName +
+                                ": $" + progressAmount + "\nRemaining Amount: $" + remainingAmount);
+                    }
+                } else {
+                    showAlert("Invalid Goal", "No goal set with the name: " + goalName);
+                }
+            } catch (NumberFormatException ex) {
+                showAlert("Invalid Input", "Please enter a valid numeric value for progress amount.");
+            }
+        });
+    }
+    private void addExpenseAnalyticsControls(GridPane grid, int col, int row) {
+        Label analyticsLabel = new Label("Expense Analytics");
+    grid.add(analyticsLabel, col, row, 2, 1);
+    analyticsLabel.getStyleClass().add("analytics-label");
+    
+        Label amountLabel = new Label("Amount:");
+        grid.add(amountLabel, col, row + 1);
+    
+        TextField amountField = new TextField();
+        grid.add(amountField, col + 1, row + 1);
+    
+        Label categoryLabel = new Label("Category:");
+        grid.add(categoryLabel, col, row + 2);
+    
+        TextField categoryField = new TextField();
+        grid.add(categoryField, col + 1, row + 2);
+    
+        Button recordExpenseButton = new Button("Record Expense");
+    grid.add(recordExpenseButton, col + 1, row + 3);
+    recordExpenseButton.getStyleClass().add("record-expense-button");
+    
+        Button viewAnalyticsButton = new Button("View Analytics");
+    grid.add(viewAnalyticsButton, col + 1, row + 4);
+    viewAnalyticsButton.getStyleClass().add("view-button");
+    
+        recordExpenseButton.setOnAction(e -> {
+            try {
+                double expenseAmount = Double.parseDouble(amountField.getText());
+                String expenseCategory = categoryField.getText();
+    
+                expenseAnalytics.recordExpense(expenseAmount, expenseCategory);
+    
+                showAlert("Expense Recorded", "Expense recorded successfully: $" + expenseAmount + " in category " + expenseCategory);
+            } catch (NumberFormatException ex) {
+                showAlert("Invalid Input", "Please enter a valid numeric value for the expense amount.");
+            }
+        });
+    
+        viewAnalyticsButton.setOnAction(e -> {
+            // Display expense analytics in an alert
+            String analyticsMessage = expenseAnalytics.viewExpenseAnalytics();
+            showAlert("Expense Analytics", analyticsMessage);
+        });
+    }
+    
 
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);

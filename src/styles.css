@@ -1,0 +1,49 @@
+.root {
+  -fx-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+.title-label,
+.analytics-label {
+  -fx-font-size: 18px;
+  -fx-font-weight: bold;
+  -fx-text-fill: #333;
+}
+
+.button-base {
+  -fx-font-size: 14px;
+  -fx-padding: 8px 16px;
+  -fx-background-radius: 5px;
+  -fx-cursor: hand;
+}
+
+.auth-button,
+.record-button,
+.summary-button,
+.history-button,
+.set-button,
+.track-button,
+.record-savings-button,
+.display-savings-button,
+.set-goal-button,
+.record-progress-button,
+.record-expense-button,
+.analytics-button,
+.view-button {
+  -fx-background-color: #4caf50; /* Green */
+  -fx-text-fill: white;
+}
+
+.auth-button:hover,
+.record-button:hover,
+.summary-button:hover,
+.history-button:hover,
+.set-button:hover,
+.track-button:hover,
+.record-savings-button:hover,
+.display-savings-button:hover,
+.set-goal-button:hover,
+.record-progress-button:hover,
+.record-expense-button:hover,
+.analytics-button:hover {
+  -fx-background-color: #0a4e0d; /* Darker Green */
+}
