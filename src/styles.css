@@ -44,6 +44,8 @@
 .set-goal-button:hover,
 .record-progress-button:hover,
 .record-expense-button:hover,
-.analytics-button:hover {
+.analytics-button:hover,
+.record-expense-button:hover,
+.view-button:hover {
   -fx-background-color: #0a4e0d; /* Darker Green */
 }

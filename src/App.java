@@ -4,27 +4,23 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import java.text.SimpleDateFormat;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.paint.Color;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 
-class UserAuthentication {
+interface UserAuth{
+    boolean authenticateUser(String username, String password);
+}
+
+class UserAuthentication implements UserAuth{
     private String username;
     private String password;
 
-    // Constructor to initialize the username and password
     public UserAuthentication(String username, String password) {
         this.username = username;
         this.password = password;
     }
 
-    // Method to authenticate the user
     public boolean authenticateUser(String enteredUsername, String enteredPassword) {
         return username.equals(enteredUsername) && password.equals(enteredPassword);
     }
@@ -34,13 +30,11 @@ class FinancialManager {
     private ArrayList<Double> incomes;
     private ArrayList<Double> expenses;
 
-    // Constructor to initialize income and expense lists
     public FinancialManager() {
         this.incomes = new ArrayList<>();
         this.expenses = new ArrayList<>();
     }
 
-    // Method to record income
     public String recordIncome(double amount) {
         incomes.add(amount);
         String message = "Income recorded successfully: $" + amount;
@@ -48,7 +42,6 @@ class FinancialManager {
         return message;
     }
 
-    // Method to record expense
     public String recordExpense(double amount) {
         expenses.add(amount);
         String message = "Expense recorded successfully: $" + amount;
@@ -56,7 +49,6 @@ class FinancialManager {
         return message;
     }
 
-    // Method to display income and expense summary
     public String displaySummary() {
     double totalIncome = incomes.stream().mapToDouble(Double::doubleValue).sum();
     double totalExpense = expenses.stream().mapToDouble(Double::doubleValue).sum();
@@ -65,7 +57,7 @@ class FinancialManager {
                      "Total Expense: $" + totalExpense + "\n" +
                      "Balance: $" + (totalIncome - totalExpense);
 
-    System.out.println(summary); // Print to the console as well
+    System.out.println(summary); 
     return summary;
 }
     
@@ -76,14 +68,12 @@ class Transaction {
     private String description;
     private double amount;
 
-    // Constructor to initialize a transaction
     public Transaction(String description, double amount) {
         this.date = new Date();
         this.description = description;
         this.amount = amount;
     }
 
-    // Method to get a formatted string representation of the transaction
     public String getFormattedTransaction() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return "Date: " + dateFormat.format(date) + "\nDescription: " + description + "\nAmount: $" + amount;
@@ -93,19 +83,16 @@ class Transaction {
 class TransactionHistoryManager {
     private ArrayList<Transaction> transactions;
 
-    // Constructor to initialize the transaction history list
     public TransactionHistoryManager() {
         this.transactions = new ArrayList<>();
     }
 
-    // Method to record a transaction and return its formatted representation
     public String recordTransaction(String description, double amount) {
         Transaction transaction = new Transaction(description, amount);
         transactions.add(transaction);
         return transaction.getFormattedTransaction();
     }
 
-    // Method to get a formatted string representation of the transaction history
     public String getTransactionHistory() {
         StringBuilder history = new StringBuilder("Transaction History:\n");
         for (Transaction transaction : transactions) {
@@ -118,24 +105,20 @@ class TransactionHistoryManager {
 class BudgetManager {
     private Map<String, Double> budgets;
 
-    // Constructor to initialize the budget map
     public BudgetManager() {
         this.budgets = new HashMap<>();
     }
 
-    // Method to set a budget for a specific category
     public void setBudget(String category, double amount) {
         budgets.put(category, amount);
         System.out.println("Budget set successfully for " + category + ": $" + amount);
     }
 
-    // Method to track spending against budgets
     public void trackSpending(String category, double spentAmount) {
     if (budgets.containsKey(category)) {
         double budgetAmount = budgets.get(category);
         double remainingBudget = budgetAmount - spentAmount;
 
-        // Update the budget value
         budgets.put(category, remainingBudget);
 
         System.out.println("Remaining budget for " + category + ": $" + remainingBudget);
@@ -153,19 +136,16 @@ class BudgetManager {
 class SavingsManager {
     private Map<String, Double> savings;
 
-    // Constructor to initialize the savings map
     public SavingsManager() {
         this.savings = new HashMap<>();
     }
 
-    // Method to record a savings or investment account
     public void recordSavings(String accountName, double amount, double interestRate, String maturityDate) {
         savings.put(accountName, amount);
         System.out.println("Savings recorded successfully: " + accountName +
                 " - Amount: $" + amount + ", Interest Rate: " + interestRate + "%, Maturity Date: " + maturityDate);
     }
 
-    // Method to display savings and investment details
     public String displaySavings() {
     StringBuilder savingsDetails = new StringBuilder("Savings and Investments:\n");
     for (Map.Entry<String, Double> entry : savings.entrySet()) {
@@ -181,20 +161,17 @@ class Goal {
     private double targetAmount;
     private double currentAmount;
 
-    // Constructor to initialize a financial goal
     public Goal(String description, double targetAmount) {
         this.description = description;
         this.targetAmount = targetAmount;
         this.currentAmount = 0.0;
     }
 
-    // Method to record progress towards a goal
     public void recordProgress(double amount) {
         currentAmount += amount;
         System.out.println("Progress recorded towards " + description + ": $" + amount);
     }
 
-    // Method to check if the goal is achieved
     public boolean isGoalAchieved() {
         return currentAmount >= targetAmount;
     }
@@ -202,12 +179,10 @@ class Goal {
         return currentAmount;
     }
 
-    // Method to get the remaining amount to reach the goal
     public double getTargetAmount() {
         return Math.max(0, targetAmount - currentAmount);
     }
 
-    // Method to display goal details
     public void displayGoalDetails() {
         System.out.println("Goal: " + description);
         System.out.println("Target Amount: $" + targetAmount);
@@ -218,35 +193,32 @@ class Goal {
 class GoalManager {
     private Map<String, Goal> goals;
 
-    // Constructor to initialize the goals map
+
     public GoalManager() {
         this.goals = new HashMap<>();
     }
 
-    // Method to set a financial goal
     public void setGoal(String goalName, String description, double targetAmount) {
         Goal goal = new Goal(description, targetAmount);
         goals.put(goalName, goal);
         System.out.println("Financial goal set successfully: " + goalName);
     }
 
-    // Method to record progress towards a goal
     public double recordProgress(String goalName, double amount) {
     if (goals.containsKey(goalName)) {
         Goal goal = goals.get(goalName);
         goal.recordProgress(amount);
 
-        // Check if the goal is achieved after recording progress
         if (goal.isGoalAchieved()) {
             System.out.println("Congratulations! You've achieved your financial goal: " + goalName);
-            return 0;  // Goal achieved, return 0 for remaining amount
+            return 0; 
         }
 
-        double remainingAmount = goal.getTargetAmount();  // Corrected calculation
+        double remainingAmount = goal.getTargetAmount();  
         return remainingAmount;
     } else {
         System.out.println("No goal set with the name: " + goalName);
-        return -1; // Return a negative value to indicate no goal set
+        return -1; 
     }
 }
 }
@@ -255,17 +227,15 @@ class ExpenseAnalytics {
     private ArrayList<Double> expenses;
     private Map<String, Double> categoryExpenses;
 
-    // Constructor to initialize expense lists and category expenses
     public ExpenseAnalytics() {
         this.expenses = new ArrayList<>();
         this.categoryExpenses = new HashMap<>();
     }
 
-    // Method to record an expense
+
     public void recordExpense(double amount, String category) {
         expenses.add(amount);
 
-        // Update category-wise expenses
         if (categoryExpenses.containsKey(category)) {
             double currentCategoryExpense = categoryExpenses.get(category);
             categoryExpenses.put(category, currentCategoryExpense + amount);
@@ -274,7 +244,6 @@ class ExpenseAnalytics {
         }
     }
 
-    // Method to view detailed analytics on spending habits
     public String viewExpenseAnalytics() {
         StringBuilder analyticsMessage = new StringBuilder("Expense Analytics:\n");
         analyticsMessage.append("Total Expenses: $").append(expenses.stream().mapToDouble(Double::doubleValue).sum()).append("\n");
@@ -320,10 +289,9 @@ public class App extends Application {
         grid.setVgap(10);
         grid.setPadding(new Insets(25, 25, 25, 25));
     
-        // Add only authentication controls initially
         addAuthenticationControls(grid, 0, 0);
-    
-        Scene scene = new Scene(grid, 1000, 800);  // Adjust the size as needed
+        grid.setStyle("-fx-background-image: url('green2.jpg'); -fx-background-size: cover;");
+        Scene scene = new Scene(grid, 1000, 700); 
         scene.getStylesheets().add("styles.css");
         primaryStage.setScene(scene);
     
@@ -357,7 +325,6 @@ public class App extends Application {
             String enteredPassword = passwordField.getText();
 
             if (userAuth.authenticateUser(enteredUsername, enteredPassword)) {
-                // If authentication is successful, show the other controls
                 addFinancialControls(grid, 0, 7);
                 addTransactionHistoryControls(grid, 2, 0);
                 addBudgetManagerControls(grid, 2, 7);
@@ -367,7 +334,6 @@ public class App extends Application {
 
                 showAlert("Authentication Successful", "Access granted.");
 
-                // Remove authentication controls
                 grid.getChildren().removeAll(authLabel, usernameLabel, usernameField, passwordLabel, passwordField, authButton);
             } else {
                 showAlert("Authentication Failed", "Access denied.");
@@ -394,9 +360,9 @@ public class App extends Application {
         Button recordButton = new Button("Record Transaction");
         grid.add(recordButton, col + 1, row + 3);
         Button showSummaryButton = new Button("Show Summary");
-    grid.add(showSummaryButton, col + 1, row + 4);
+        grid.add(showSummaryButton, col + 1, row + 4);
 
-    financialLabel.getStyleClass().add("title-label");
+        financialLabel.getStyleClass().add("title-label");
         recordButton.getStyleClass().add("record-button");
         showSummaryButton.getStyleClass().add("summary-button");
 
@@ -409,7 +375,6 @@ public class App extends Application {
                 String incomeMessage = financialManager.recordIncome(incomeAmount);
                 String expenseMessage = financialManager.recordExpense(expenseAmount);
         
-                // Display summary
                 showAlert("Transaction Recorded", incomeMessage + "\n" + expenseMessage);
                 financialManager.displaySummary();
             } catch (NumberFormatException ex) {
@@ -417,7 +382,6 @@ public class App extends Application {
             }
         });
         showSummaryButton.setOnAction(e -> {
-            // Display financial summary
             String summaryMessage = financialManager.displaySummary();
             showAlert("Financial Summary", summaryMessage);
         });
@@ -455,7 +419,6 @@ public class App extends Application {
 
                 transactionHistoryManager.recordTransaction(description, amount);
 
-                // Display recorded transaction in an alert
                 showAlert("Transaction Recorded", "Description: " + description + "\nAmount: $" + amount);
 
             } catch (NumberFormatException ex) {
@@ -464,7 +427,6 @@ public class App extends Application {
         });
 
         displayHistoryButton.setOnAction(e -> {
-            // Display transaction history in an alert
             showAlert("Transaction History", transactionHistoryManager.getTransactionHistory());
         });
         
@@ -493,10 +455,10 @@ public class App extends Application {
         grid.add(trackSpendingButton, col + 1, row + 4);
 
         budgetLabel.getStyleClass().add("title-label");
-    categoryLabel.getStyleClass().add("input-label");
-    amountLabel.getStyleClass().add("input-label");
-    setBudgetButton.getStyleClass().add("record-button");
-    trackSpendingButton.getStyleClass().add("track-button");
+        categoryLabel.getStyleClass().add("input-label");
+        amountLabel.getStyleClass().add("input-label");
+        setBudgetButton.getStyleClass().add("record-button");
+        trackSpendingButton.getStyleClass().add("track-button");
 
         setBudgetButton.setOnAction(e -> {
             try {
@@ -517,10 +479,8 @@ public class App extends Application {
         
                 budgetManager.trackSpending(category, spentAmount);
         
-                // Get the updated remaining budget
                 double remainingBudget = budgetManager.getBudget(category);
         
-                // Display the remaining budget in an alert
                 showAlert("Spending Tracked", "Remaining budget for " + category + ": $" + remainingBudget);
         
             } catch (NumberFormatException ex) {
@@ -587,7 +547,6 @@ public class App extends Application {
         });
     
         displaySavingsButton.setOnAction(e -> {
-            // Display savings and investments in an alert
             savingsDetails = savingsManager.displaySavings();
             showAlert("Savings Details", savingsDetails);
         });
@@ -627,10 +586,10 @@ public class App extends Application {
             }
         });
         goalLabel.getStyleClass().add("title-label");
-    goalNameLabel.getStyleClass().add("input-label");
-    goalAmountLabel.getStyleClass().add("input-label");
-    setGoalButton.getStyleClass().add("record-button");
-    recordProgressButton.getStyleClass().add("record-button");
+        goalNameLabel.getStyleClass().add("input-label");
+        goalAmountLabel.getStyleClass().add("input-label");
+        setGoalButton.getStyleClass().add("record-button");
+        recordProgressButton.getStyleClass().add("record-button");
     
         recordProgressButton.setOnAction(e -> {
             try {
@@ -692,7 +651,6 @@ public class App extends Application {
         });
     
         viewAnalyticsButton.setOnAction(e -> {
-            // Display expense analytics in an alert
             String analyticsMessage = expenseAnalytics.viewExpenseAnalytics();
             showAlert("Expense Analytics", analyticsMessage);
         });
@@ -703,13 +661,16 @@ public class App extends Application {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
-
+    
         if (message != null && !message.isEmpty()) {
             alert.setContentText(message);
         } else {
             alert.setContentText("No message to display.");
         }
-
+    
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
+    
         alert.showAndWait();
     }
 }
